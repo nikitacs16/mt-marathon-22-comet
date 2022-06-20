@@ -21,14 +21,14 @@ class Perturber(object):
             raise NotImplementedError
 
     @staticmethod
-    def _delete_negate(sentence: str, negator: str) -> str:
+    def delete_negate(sentence: str, negator: str) -> str:
         '''
         Delete a negation token from a sentence.
         '''
         return re.sub(f' {negator} ', ' ', sentence, count=1)
 
     @staticmethod
-    def _double_negate(sentence: str, negator: str) -> str:
+    def double_negate(sentence: str, negator: str) -> str:
         '''
         Duplicate a negation token to create a double negation.
         '''
@@ -37,7 +37,7 @@ class Perturber(object):
                       sentence, count=1)
 
     @staticmethod
-    def __map(series: pd.Series,
+    def map(series: pd.Series,
               method: Callable,
               name: str,
               *args) -> pd.DataFrame:
@@ -59,14 +59,14 @@ class Perturber(object):
             # Extract the subset of good translations with negator tokens
             subset = tsv_f[tsv_f['good-translation'].str.contains(self.negator)]
 
-            deleted_negation_df = self.__map(subset,
-                                             self._delete_negate,
-                                             'deleted_negation',
-                                             self.negator)
-            double_negation_df = self.__map(subset,
-                                            self._double_negate,
-                                            'double_negation',
-                                            self.negator)
+            deleted_negation_df = self.map(subset,
+                                           self.delete_negate,
+                                           'deleted_negation',
+                                           self.negator)
+            double_negation_df = self.map(subset,
+                                          self.double_negate,
+                                          'double_negation',
+                                          self.negator)
             return pd.concat([deleted_negation_df, double_negation_df])
 
     def __call__(self, tsv_f: pd.DataFrame) -> pd.DataFrame:
