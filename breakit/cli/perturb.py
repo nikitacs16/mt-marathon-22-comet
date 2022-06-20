@@ -44,9 +44,11 @@ def perturb() -> None:
         tsv_f = read_file(f)
         logging.info(f'Perturbing {f}')
 
+        # Apply perturbations
         perturber = Perturber.get_perturber(cfg.lang)
         tsv_f_perturbed = perturber(tsv_f)
 
+        # Write new TSV file
         new_f = f.split('tsv')[0]+cfg.output_suffix+'.tsv'
         tsv_f_perturbed.to_csv(new_f, index=False, sep='\t')
 

@@ -55,6 +55,7 @@ def score() -> None:
         for scorer in scorers:
             scorer(tsv_f)
 
+        # Write new TSV file
         new_f = f.split('tsv')[0]+cfg.output_suffix+'.tsv'
         tsv_f.to_csv(new_f, index=False, sep='\t')
 

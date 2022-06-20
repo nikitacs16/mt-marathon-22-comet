@@ -49,6 +49,7 @@ def evaluate() -> None:
 
         metrics = [m.split('-')[0] for m in tsv_f.columns if m.endswith('-good')]
 
+        # Compute Kendall Tau grouped by phenomenon and metric
         print(f'\n\nEvaluating {f}')
         phenomena_dfs = [(l, df) for l, df in tsv_f.groupby(['phenomena'])]
         for label, p in phenomena_dfs:
