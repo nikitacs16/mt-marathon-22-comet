@@ -41,8 +41,10 @@ class COMETScorer(Scorer):
                  use_reference: bool=True,
                  gpus: int=1,
                  batch_size: int=16) -> None:
+        self.prefix= 'comet'
         if not use_reference:
             assert 'qe' in model_path
+            self.prefix = 'cometQE'
         model_path = download_model(model_path)
         self.model = load_from_checkpoint(model_path)
         self.gpus = gpus
@@ -53,7 +55,7 @@ class COMETScorer(Scorer):
                 'mt': tsv_f['good-translation'],
                 'ref': tsv_f['reference']}
         data = [dict(zip(data, t)) for t in zip(*data.values())]
-        tsv_f['comet-good'], _ = self.model.predict(data,
+        tsv_f[self.prefix+'-good'], _ = self.model.predict(data,
                                                     gpus=self.gpus,
                                                     batch_size=self.batch_size)
 
@@ -61,6 +63,6 @@ class COMETScorer(Scorer):
                 'mt': tsv_f['incorrect-translation'],
                 'ref': tsv_f['reference']}
         data = [dict(zip(data, t)) for t in zip(*data.values())]
-        tsv_f['comet-bad'], _ = self.model.predict(data,
+        tsv_f[self.prefix+'-bad'], _ = self.model.predict(data,
                                                    gpus=self.gpus,
                                                    batch_size=self.batch_size)

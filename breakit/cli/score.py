@@ -12,7 +12,8 @@ from breakit.utils import read_file
 
 SCORERS = {'bleu': BLEUScorer,
            'chrf': CHRFScorer,
-           'comet': COMETScorer}
+           'comet': COMETScorer,
+           'comet-qe': COMETScorer}
 
 
 def get_arg_parser() -> ArgumentParser:
@@ -33,9 +34,16 @@ def get_arg_parser() -> ArgumentParser:
     parser.add_argument('-m', '--metrics',
                         type=str,
                         nargs='+',
-                        choices=['bleu', 'chrf', 'comet'],
-                        default=['bleu', 'chrf', 'comet'],
+                        choices=['bleu', 'chrf', 'comet', 'comet-qe'],
+                        default=['bleu', 'chrf', 'comet','comet-qe'],
                         help='Metrics to score on examples.')
+    parser.add_argument('-p', '--path',
+                        type=str,
+                        default='wmt20-comet-qe-da',
+                        help='Absolute path for metric') # TODO if multiple metrics require multiple paths, add a list corresponding to the order of the metrics that were called
+
+
+
 
     return parser
 
@@ -45,8 +53,16 @@ def score() -> None:
     Score all TSV files with all selected metrics and save as new TSV file.
     '''
     cfg = get_arg_parser().parse_args()
+    scorers = []
+    for m in cfg.metrics:
+        if 'comet-qe' in m:
+            assert cfg.path is not None
+            scorers.append(SCORERS[m](model_path=cfg.path, use_reference=False))
+        else:
+            scorers.append(SCORERS[m]())
 
-    scorers = [SCORERS[m]() for m in cfg.metrics]
+
+    #scorers = [SCORERS[m]() for m in cfg.metrics]
 
     for f in cfg.inputs:
         tsv_f = read_file(f)
