@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'jsonargparse',
         'pandas',
+        'pytest',
         'sacrebleu',
         'spacy',
         'unbabel-comet',
