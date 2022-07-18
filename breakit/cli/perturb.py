@@ -30,6 +30,13 @@ def get_arg_parser() -> ArgumentParser:
                         type=str,
                         required=True,
                         help='Language of translation hypothesis.')
+    parser.add_argument('-m', '--methods',
+                        type=str,
+                        nargs='+',
+                        choices=['negation', 'units', 'named-entities', 'numbers'],
+                        default=None,
+                        required=True,
+                        help='List of perturbation methods.')
 
     return parser
 
@@ -46,7 +53,7 @@ def perturb() -> None:
 
         # Apply perturbations
         perturber = Perturber.get_perturber(cfg.lang)
-        tsv_f_perturbed = perturber(tsv_f)
+        tsv_f_perturbed = perturber(tsv_f, cfg.methods)
 
         # Write new TSV file
         new_f = f.split('tsv')[0]+cfg.output_suffix+'.tsv'
