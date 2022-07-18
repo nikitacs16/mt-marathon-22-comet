@@ -53,7 +53,7 @@ def evaluate() -> None:
         print(f'\n\nEvaluating {f}')
         phenomena_dfs = [(l, df) for l, df in tsv_f.groupby(['phenomena'])]
         for label, p in phenomena_dfs:
-            print(f'\n{label}')
+            print(f'\n{label}\t{len(p)}')
             for m in metrics:
                 tau = comp_corr(p[f'{m}-good'], p[f'{m}-bad'])
                 print(f'\t{m}\t{tau}')
