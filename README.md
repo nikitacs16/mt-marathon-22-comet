@@ -2,7 +2,7 @@
 
 
 ## Datasets
-As the created files are greater than the allowed repository capacity, find the datasets [here](https://uoe-my.sharepoint.com/:f:/r/personal/s1948463_ed_ac_uk/Documents/Work/Build-It-Break-It-22?csf=1&web=1&e=gglbyX) 
+As the created files are greater than the allowed repository capacity, find the datasets [here](https://uoe-my.sharepoint.com/:f:/r/personal/s1948463_ed_ac_uk/Documents/Work/Build-It-Break-It-22?csf=1&web=1&e=gglbyX)
 
 ### XNLI
 
@@ -32,11 +32,19 @@ Output: One TSV file per input file named 'your_file.perturbed.tsv' with 'source
 **Currently implemented perturbations:**
 
 - Negation deletion and double negation
+- Unit conversions (only for English)
+- Number changes
+- Named entity changes
 
 **Currently supported languages:**
 
 - English
 - German
+- French
+- Spanish
+- Korean
+- Japanese
+- Chinese
 
 ### Scoring Adversarial Examples
 
@@ -53,6 +61,7 @@ Output: One TSV file per input file named 'your_file.scored.tsv' with 'source', 
 - BLEU
 - ChrF
 - COMET (needs GPU access)
+- COMET-QE (needs GPU access)
 
 ### Evaluating Metrics
 
