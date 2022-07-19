@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pandas as pd
+import csv
 
 
 def read_file(filename: str) -> pd.DataFrame:
