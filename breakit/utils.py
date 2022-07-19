@@ -7,4 +7,4 @@ def read_file(filename: str) -> pd.DataFrame:
     '''
     Read TSV file and return as pandas DataFrame
     '''
-    return pd.read_csv(filename, sep='\t')
+    return pd.read_csv(filename, sep='\t', quoting=csv.QUOTE_NONE)
