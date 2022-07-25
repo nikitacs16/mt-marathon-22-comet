@@ -27,30 +27,44 @@ UREG = pint.UnitRegistry()
 LETTERS = list('abcdefghijklmnopqrstuvwxyz')
 DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
+
+
 class Perturber(object):
 
     def __init__(self):
         self.method_dict = {'negation': self.__perturb_negation,
                             'units': self.__perturb_units,
                             'named-entities': self.__perturb_named_entities,
-                            'numbers': self.__perturb_numbers}
+                            'numbers': self.__perturb_numbers,
+                            'dates': self.__perturb_dates}
 
     @staticmethod
     def get_perturber(lang: str) -> 'Perturber':
-        if lang == 'en':
-            return EnglishPerturber()
-        elif lang == 'de':
-            return GermanPerturber()
-        elif lang == 'fr':
-            return FrenchPerturber()
-        elif lang == 'es':
-            return SpanishPerturber()
-        elif lang == 'zh':
-            return ChinesePerturber()
-        elif lang == 'ja':
-            return JapanesePerturber()
-        elif lang == 'ko':
-            return KoreanPerturber()
+        langs = {'en': EnglishPerturber,
+                 'de': GermanPerturber,
+                 'fr': FrenchPerturber,
+                 'es': SpanishPerturber,
+                 'zh': ChinesePerturber,
+                 'ja': JapanesePerturber,
+                 'ko': KoreanPerturber,
+                 'hr': CroatianPerturber,
+                 'cz': CzechPerturber,
+                 'da': DanishPerturber,
+                 'nl': DutchPerturber,
+                 'et': EstonianPerturber,
+                 'hu': HungarianPerturber,
+                 'lv': LatvianPerturber,
+                 'lt': LithuanianPerturber,
+                 'no': NorwegianPerturber,
+                 'pl': PolishPerturber,
+                 'pt': PortuguesePerturber,
+                 'ro': RomanianPerturber,
+                 'sk': SlovakPerturber,
+                 'sl': SlovenianPerturber,
+                 'sv': SwedishPerturber,
+                 }
+        if lang in langs:
+            return langs[lang]()
         else:
             raise NotImplementedError
 
@@ -369,6 +383,26 @@ class Perturber(object):
         return sentence
 
     @staticmethod
+    def abbreviate_months(sentence: str, months: dict) -> str:
+        '''
+        Abbreviate a month.
+        '''
+        for month in months:
+            if month in sentence:
+                if months[month]:
+                    return re.sub(rf'{month}\.?', rf'{months[month]}', sentence, count=1)
+
+    @staticmethod
+    def change_months(sentence: str, months: dict) -> str:
+        '''
+        Replace a month with a different month name.
+        '''
+        for month in months:
+            if month in sentence:
+                new_month = random.choice([m for m in months if m not in [month]])
+                return re.sub(month, new_month, sentence, count=1)
+
+    @staticmethod
     def map(series: pd.Series,
               method: Callable,
               name: str,
@@ -503,6 +537,33 @@ class Perturber(object):
 
         return pd.DataFrame(changed_units)
 
+    def _eliminate_wrong_month_translations(self, row) -> bool:
+        '''
+        Check whether month in reference is also in good-translation:
+        '''
+        for month in self.months:
+            if month in row['reference'] and month in row['good-translation']:
+                return True
+        return False
+
+    def __perturb_dates(self, tsv_f: pd.DataFrame) -> pd.DataFrame:
+        '''
+        Apply date-time related perturbations.
+        '''
+        tsv_f['matches'] = tsv_f.apply(lambda x: self._eliminate_wrong_month_translations(x), axis=1).dropna()
+
+        abbreviated_month_names = self.map(tsv_f,
+                                       self.abbreviate_months,
+                                       'date-time',
+                                       self.months)
+        changed_month_names = self.map(tsv_f,
+                                       self.change_months,
+                                       'date-time',
+                                       self.months)['incorrect-translation']
+        abbreviated_month_names['good-translation'] = abbreviated_month_names['incorrect-translation']
+        abbreviated_month_names['incorrect-translation'] = changed_month_names
+        return abbreviated_month_names.dropna()
+
     def __call__(self, tsv_f: pd.DataFrame, methods: List[str]) -> pd.DataFrame:
         '''
         Make all language-independent perturbations.
@@ -557,6 +618,18 @@ class EnglishPerturber(Perturber):
                       'ounce': ['grams'],
                       'square kilometre': ['square miles']
                       }
+        self.months = {'January': 'Jan.',
+                       'February': 'Feb.',
+                       'March': 'Mar.',
+                       'April': 'Apr.',
+                       'May': None,
+                       'June': None,
+                       'July': None,
+                       'August': 'Aug.',
+                       'September': 'Sept.',
+                       'October': 'Oct.',
+                       'November': 'Nov.',
+                       'December': 'Dec.'}
         try:
             self.nlp = spacy.load('en_core_web_lg')
         except OSError:
@@ -572,6 +645,18 @@ class GermanPerturber(Perturber):
         self.lang = 'de'
         self.negator = 'nicht'
         self.ne_tags = ['PER']
+        self.months = {'Januar': 'Jan.',
+                       'Februar': 'Feb.',
+                       'März': None,
+                       'April': 'Apr.',
+                       'Mai': None,
+                       'Juni': None,
+                       'Juli': None,
+                       'August': 'Aug.',
+                       'September': 'Sept.',
+                       'Oktober': 'Okt.',
+                       'November': 'Nov.',
+                       'Dezember': 'Dez.'}
         try:
             self.nlp = spacy.load('de_core_news_lg')
         except OSError:
@@ -586,6 +671,18 @@ class FrenchPerturber(Perturber):
         super().__init__()
         self.lang = 'fr'
         self.ne_tags = ['PER']
+        self.months = {'janvier': 'janv.',
+                       'février': 'févr.',
+                       'mars': None,
+                       'avril': None,
+                       'mai': None,
+                       'juin': None,
+                       'juillet': 'juil.',
+                       'août': None,
+                       'septembre': 'sept.',
+                       'octobre': 'oct.',
+                       'novembre': 'nov.',
+                       'décembre': 'déc.'}
         try:
             self.nlp = spacy.load('fr_core_news_lg')
         except OSError:
@@ -600,6 +697,18 @@ class SpanishPerturber(Perturber):
         super().__init__()
         self.lang = 'es'
         self.ne_tags = ['PER']
+        self.months = {'enero': None,
+                       'febrero': 'feb.',
+                       'marzo': None,
+                       'abril': 'abr.',
+                       'mayo': None,
+                       'junio': 'jun.',
+                       'julio': 'jul.',
+                       'agosto': None,
+                       'septiembre': 'sept.',
+                       'octubre': 'oct.',
+                       'noviembre': 'nov.',
+                       'diciembre': 'dic.'}
         try:
             self.nlp = spacy.load('es_core_news_lg')
         except OSError:
@@ -648,3 +757,307 @@ class KoreanPerturber(Perturber):
             print('''Please install spacy model - ko_core_news_lg - like this:
                   python -m spacy download ko_core_news_lg''')
             sys.exit()
+
+
+class CroatianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'hr'
+        self.months = {'siječanj': 'sijec.',
+                       'veljača': 'velj.',
+                       'ožujak': 'ozuj.',
+                       'travanj': 'trav.',
+                       'svibanj': 'svib.',
+                       'lipanj': 'lip.',
+                       'srpanj': 'srp.',
+                       'kolovoz': 'kol.',
+                       'rujan': 'ruj.',
+                       'listopad': 'list.',
+                       'studeni': 'stud.',
+                       'prosinac': 'pros.'}
+
+
+class CzechPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'cz'
+        self.months = {'leden': 'led.',
+                       'únor': 'ún.',
+                       'březen': 'brez.',
+                       'duben': 'dub.',
+                       'květen': 'kvet.',
+                       'červen': 'cerv.',
+                       'červenec': 'cerven.',
+                       'srpen': 'srp.',
+                       'září': 'zár.',
+                       'říjen': 'ríj.',
+                       'listopad': 'list.',
+                       'prosinec': 'pros.'}
+
+
+class DanishPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'da'
+        self.months = {'januar': 'jan.',
+                       'februar': 'febr.',
+                       'marts': None,
+                       'april': None,
+                       'maj': None,
+                       'juni': None,
+                       'juli': None,
+                       'august': 'aug.',
+                       'september': 'sept.',
+                       'oktober': 'okt.',
+                       'november': 'nov.',
+                       'december': 'dec.'}
+
+
+class DutchPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'nl'
+        self.months = {'januari': 'jan.',
+                       'februari': 'feb.',
+                       'maart': None,
+                       'april': 'apr.',
+                       'mei': None,
+                       'juni': None,
+                       'juli': None,
+                       'augustus': 'aug.',
+                       'september': 'sept.',
+                       'oktober': 'okt.',
+                       'november': 'nov.',
+                       'december': 'dec.'}
+
+
+class EstonianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'et'
+        self.months = {'jaanuar': 'jaan',
+                       'veebruar': 'veebr',
+                       'märts': None,
+                       'aprill': 'apr',
+                       'mai': None,
+                       'juuni': None,
+                       'juuli': None,
+                       'august': 'aug',
+                       'september': 'sept',
+                       'oktoober': 'okt',
+                       'november': 'nov',
+                       'detsember': 'dets'}
+
+
+class HungarianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'hu'
+        self.months = {'január': 'jan.',
+                       'február': 'feb.',
+                       'március': 'márc.',
+                       'április': 'ápr.',
+                       'május': 'máj.',
+                       'június': 'jun.',
+                       'július': 'jul.',
+                       'augusztus': 'aug.',
+                       'szeptember': 'szept.',
+                       'október': 'okt.',
+                       'november': 'nov.',
+                       'december': 'dec.'}
+
+
+class ItalianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'it'
+        self.months = {'gennaio': 'genn.',
+                       'febbraio': 'febbr.',
+                       'marzo': 'mar.',
+                       'aprile': 'apr.',
+                       'maggio': 'magg.',
+                       'giugno': None,
+                       'luglio': None,
+                       'agosto': 'ag.',
+                       'settembre': 'sett.',
+                       'ottobre': 'ott.',
+                       'novembre': 'nov.',
+                       'dicembre': 'dic.'}
+
+
+class LatvianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'lv'
+        self.months = {'janvāris': 'jan.',
+                       'februāris': 'feb.',
+                       'marts': None,
+                       'aprīlis': 'apr.',
+                       'maijs': None,
+                       'jūnijs': None,
+                       'jūlijs': None,
+                       'augusts': 'aug.',
+                       'septembris': 'sept.',
+                       'oktobris': 'okt.',
+                       'novembris': 'nov.',
+                       'decembris': 'dec.'}
+
+
+class LithuanianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'lt'
+        self.months = {'sausis': 'saus.',
+                       'vasaris': 'vas.',
+                       'kovas': None,
+                       'balandis': 'bal.',
+                       'gegužė': 'geg.',
+                       'birželis': None,
+                       'liepa': None,
+                       'rugpjūtis': 'rugp.',
+                       'rugsėjis': 'rugs.',
+                       'spalis': None,
+                       'lapkritis': 'lapkr.',
+                       'gruodis': 'gr.'}
+
+
+class NorwegianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'no'
+        self.months = {'januar': 'jan.',
+                       'februar': 'febr.',
+                       'mars': None,
+                       'april': None,
+                       'mai': None,
+                       'juni': None,
+                       'juli': None,
+                       'august': 'aug.',
+                       'september': 'sept.',
+                       'oktober': 'okt.',
+                       'november': 'nov.',
+                       'desember': 'des.'}
+
+
+class PolishPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'pl'
+        self.months = {'styczeń': 'stycz.',
+                       'luty': None,
+                       'marzec': 'mar.',
+                       'kwiecień': 'kwiec.',
+                       'maj': None,
+                       'czerwiec': 'czerw.',
+                       'lipiec': 'lip.',
+                       'sierpień': 'sierp.',
+                       'wrzesień': 'wrzes.',
+                       'październik': 'pazdz.',
+                       'listopad': 'listop.',
+                       'grudzień': 'grudz.'}
+
+
+class PortuguesePerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'pt'
+        self.months = {'janeiro': 'jan.',
+                       'fevereiro': 'fev.',
+                       'março': None,
+                       'abril': None,
+                       'maio': None,
+                       'junho': None,
+                       'julho': None,
+                       'agosto': None,
+                       'setembro': 'set.',
+                       'outubro': 'out.',
+                       'novembro': 'nov.',
+                       'dezembro': 'dez.'}
+
+
+class RomanianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'ro'
+        self.months = {'ianuarie': 'ian.',
+                       'februarie': 'feb.',
+                       'martie': 'mar.',
+                       'aprilie': 'apr.',
+                       'mai': None,
+                       'iunie': None,
+                       'iulie': None,
+                       'august': 'aug.',
+                       'septembrie': 'sept.',
+                       'octombrie': 'oct.',
+                       'noiembrie': 'noiem.',
+                       'decembrie': 'dec.'}
+
+
+class SlovakPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'sk'
+        self.months = {'január': 'jan.',
+                       'február': 'feb.',
+                       'marec': 'mar.',
+                       'apríl': 'apr.',
+                       'máj': None,
+                       'jún': None,
+                       'júl': None,
+                       'august': 'aug.',
+                       'septembra': 'sept.',
+                       'október': 'okt.',
+                       'november': 'nov.',
+                       'december': 'dec.'}
+
+
+class SlovenianPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'sl'
+        self.months = {'januar': 'jan.',
+                       'februar': 'feb.',
+                       'marec': 'mar.',
+                       'april': 'apr.',
+                       'maj': None,
+                       'junij': 'jun.',
+                       'julij': 'jul.',
+                       'avgust': 'avg.',
+                       'september': 'sept.',
+                       'oktober': 'okt.',
+                       'november': 'nov.',
+                       'december': 'dec.'}
+
+
+class SwedishPerturber(Perturber):
+
+    def __init__(self):
+        super().__init__()
+        self.lang = 'sv'
+        self.months = {'januari': 'jan.',
+                       'februari': 'febr.',
+                       'mars': None,
+                       'april': None,
+                       'maj': None,
+                       'juni': None,
+                       'juli': None,
+                       'augusti': None,
+                       'september': 'sept.',
+                       'oktober': 'okt.',
+                       'november': 'nov.',
+                       'december': 'dec.'}

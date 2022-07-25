@@ -33,7 +33,7 @@ def get_arg_parser() -> ArgumentParser:
     parser.add_argument('-m', '--methods',
                         type=str,
                         nargs='+',
-                        choices=['negation', 'units', 'named-entities', 'numbers'],
+                        choices=['negation', 'units', 'named-entities', 'numbers', 'dates'],
                         default=None,
                         required=True,
                         help='List of perturbation methods.')
