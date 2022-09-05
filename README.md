@@ -1,12 +1,4 @@
-# build-it-break-it-22
 
-
-## Datasets
-As the created files are greater than the allowed repository capacity, find the datasets [here](https://uoe-my.sharepoint.com/:f:/r/personal/s1948463_ed_ac_uk/Documents/Work/Build-It-Break-It-22?csf=1&web=1&e=gglbyX)
-
-### XNLI
-
-...
 
 
 ## Command Line Interface
