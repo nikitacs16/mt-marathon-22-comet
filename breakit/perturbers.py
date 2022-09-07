@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import logging
 import sys
 import re
 
@@ -17,6 +17,7 @@ from textdistance import levenshtein
 
 
 random.seed(2022)
+logger = logging.getLogger("perturbers")
 
 # setup the unit registry for unit conversions
 UREG = pint.UnitRegistry()
@@ -37,6 +38,7 @@ class Perturber(object):
                             'named-entities': self.__perturb_named_entities,
                             'numbers': self.__perturb_numbers,
                             'dates': self.__perturb_dates}
+        self.nlp = None
 
     @staticmethod
     def get_perturber(lang: str) -> 'Perturber':
@@ -286,7 +288,7 @@ class Perturber(object):
         # Helper function that rounds to desired precision but returns
         # an integer if no fractional part.
         def match(value: float):
-            value = round(value, deci_positions)
+            value = round(value, 3)
             if str(value).endswith('.0'):
                 value = int(value)
             return value
@@ -580,6 +582,7 @@ class Perturber(object):
         # Apply all perturbation methods and combine the resulting data frames
         adversarial_sets = []
         for method in perturb_methods:
+            logger.info(f"Applying {method.__name__}")
             new_df = method(tsv_f)
             if type(new_df) == pd.DataFrame:
                 adversarial_sets.append(new_df)

@@ -61,4 +61,9 @@ def perturb() -> None:
 
 
 if __name__ == '__main__':
-        perturb()
+    logging.basicConfig(
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        level=logging.INFO,
+    )
+    perturb()
