@@ -276,7 +276,7 @@ class Perturber(object):
         change_types = []
 
         # Helper function to create the good and bad translation pairs
-        def add_example(old_token, old_value, old_unit, new_value, new_unit, sentence):
+        def add_example(old_token, old_value, old_unit, new_value, new_unit):
             good_changes.append(re.sub(old_token, f'{new_value} {new_unit}', sentence))
             bad_changes.append(re.sub(old_token, f'{old_value} {new_unit}', sentence))
             change_types.append('unit-change-wrong-amount')
