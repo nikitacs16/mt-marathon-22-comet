@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import csv
 import logging
 
 from jsonargparse import ArgumentParser
@@ -57,7 +57,7 @@ def perturb() -> None:
 
         # Write new TSV file
         new_f = f.split('tsv')[0]+cfg.output_suffix+'.tsv'
-        tsv_f_perturbed.to_csv(new_f, index=False, sep='\t')
+        tsv_f_perturbed.to_csv(new_f, index=False, sep='\t', quoting=csv.QUOTE_NONE)
 
 
 if __name__ == '__main__':
