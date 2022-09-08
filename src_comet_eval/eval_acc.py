@@ -99,6 +99,10 @@ if __name__ == "__main__":
     print(f"Accuracy: {acc:.2%}")
     avg_diff = np.average([y - x for x, y in zip(scores_hm, scores_hp)])
     print(f"Avg. diff: {avg_diff:.2f}")
+    avg_diff_pos = np.average([y - x for x, y in zip(scores_hm, scores_hp) if x < y])
+    print(f"Avg. diff (pos): {avg_diff_pos:.2f}")
+    avg_diff_neg = np.average([y - x for x, y in zip(scores_hm, scores_hp) if x > y])
+    print(f"Avg. diff (neg): {avg_diff_neg:.2f}")
 
     tau = wmt_kendall_tau(scores_hp, scores_hm)
     print(f"Tau: {tau:.2f}")
@@ -107,6 +111,7 @@ if __name__ == "__main__":
         "tau": tau, "pearson (good-bad)": corr_pearson,
         "model": args.model.split("/")[-1],
         "acc": acc, "avg_diff": avg_diff,
+        "avg_diff_neg": avg_diff_neg, "avg_diff_pos": avg_diff_pos,
         "data": args.data.split("/")[-1].split(".")[0]
     }
 
