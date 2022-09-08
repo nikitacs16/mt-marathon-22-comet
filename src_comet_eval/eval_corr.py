@@ -13,11 +13,12 @@ if __name__ == "__main__":
         "--model",
         default="downloads/mtm-baseline-comet/checkpoints/epoch=3-step=42220.ckpt",
     )
-    args.add_argument("--data", nargs="+",
-    default=[
-        "downloads/wmt-ende-newstest2021.csv",
-        "downloads/wmt-enru-newstest2021.csv",
-        "downloads/wmt-zhen-newstest2021.csv",
+    args.add_argument(
+        "--data", nargs="+",
+        default=[
+            "downloads/wmt-ende-newstest2021.csv",
+            "downloads/wmt-enru-newstest2021.csv",
+            "downloads/wmt-zhen-newstest2021.csv",
         ]
     )
     args.add_argument("-l", "--logfile", default=None)
@@ -62,7 +63,11 @@ if __name__ == "__main__":
         scores_human = np.array(scores_human, dtype=float)
         print("Shapes", scores_pred.shape, scores_human.shape)
 
-        print("Computing correlations on", len(scores_human), "sentence scores")
+        print(
+            "Computing correlations on",
+            len(scores_human),
+            "sentence scores"
+        )
         corr_kendall = kendalltau(scores_pred, scores_human)[0]
         print(f"Kendall:  {corr_kendall:.2f}")
         corr_pearson = pearsonr(scores_pred, scores_human)[0]
@@ -86,4 +91,4 @@ if __name__ == "__main__":
         print(json.dumps(outobj))
     else:
         with open(args.logfile, "w") as f:
-            f.write(json.dumps(outobj))
+            f.write(json.dumps(outobj) + "\n")

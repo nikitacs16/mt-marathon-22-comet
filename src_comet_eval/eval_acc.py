@@ -3,9 +3,22 @@
 import comet
 import argparse
 import csv
-from scipy.stats import spearmanr, pearsonr, kendalltau
+from scipy.stats import pearsonr
 import numpy as np
 import json
+
+
+def wmt_kendall_tau(better_scores, worse_scores):
+    """ Computes the official WMT19 shared task Kendall correlation score. """
+    assert len(better_scores) == len(worse_scores)
+    conc, disc = 0, 0
+    for b, w in tqdm(zip(better_scores, worse_scores), total=len(better_scores)):
+        if b > w:
+            conc += 1
+        else:
+            disc += 1
+    return (conc - disc) / (conc + disc)
+
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
@@ -24,6 +37,14 @@ if __name__ == "__main__":
     with open(args.data, "r") as f:
         data = list(csv.DictReader(f, delimiter="\t"))[:args.data_n]
 
+    data = [
+        x for x in data
+        if all([
+            type(x[k]) is str
+            for k in ["reference", "source", "good-translation", "incorrect-translation"]
+        ])
+    ]
+
     model = comet.load_from_checkpoint(args.model)
 
     PREDICT_KWARGS = {}
@@ -37,34 +58,38 @@ if __name__ == "__main__":
 
     model.eval()
 
+    data_hp = [
+        {
+            "src": x["source"],
+            "mt": x["good-translation"],
+            "ref": x["reference"],
+        }
+        for x in data
+    ]
+    data_hm = [
+        {
+            "src": x["source"],
+            "mt": x["incorrect-translation"],
+            "ref": x["reference"],
+        }
+        for x in data
+    ]
+
     print("Running predictions on good")
     scores_hp = model.predict(
-        [
-            {
-                "src": x["source"],
-                "mt": x["good-translation"],
-                "ref": x["reference"],
-            }
-            for x in data
-        ],
+        data_hp,
         **PREDICT_KWARGS
     )[0]
 
     print("Running predictions on incorrect")
     scores_hm = model.predict(
-        [
-            {
-                "src": x["source"],
-                "mt": x["incorrect-translation"],
-                "ref": x["reference"],
-            }
-            for x in data
-        ],
+        data_hm,
         **PREDICT_KWARGS
     )[0]
 
-    scores_hp = np.array(scores_hp, dtype=float)
     scores_hm = np.array(scores_hm, dtype=float)
+    scores_hp = np.array(scores_hp, dtype=float)
+
     print("Shapes", scores_hp.shape, scores_hm.shape)
 
     print("Computing correlations on", len(scores_hp), "sentence scores")
@@ -77,11 +102,14 @@ if __name__ == "__main__":
 
     acc = np.average([x < y for x, y in zip(scores_hm, scores_hp)])
     print(f"Accuracy: {acc:.2%}")
-    avg_diff = np.average([y-x for x, y in zip(scores_hm, scores_hp)])
-    print(f"Avg. diff: {avg_diff:.2%}")
+    avg_diff = np.average([y - x for x, y in zip(scores_hm, scores_hp)])
+    print(f"Avg. diff: {avg_diff:.2f}")
+
+    tau = wmt_kendall_tau(scores_hp, scores_hm)
+    print(f"Tau: {tau:.2f}")
 
     outobj = {
-        "kendall": corr_kendall, "pearson": corr_pearson, "spearman": corr_spearman,
+        "ta": tau, "pearson (good-bad)": corr_pearson,
         "model": args.model.split("/")[-1],
         "acc": acc, "avg_diff": avg_diff,
         "data": args.data.split("/")[-1].split(".")[0]
@@ -91,4 +119,4 @@ if __name__ == "__main__":
         print(json.dumps(outobj))
     else:
         with open(args.logfile, "w") as f:
-            f.write(json.dumps(outobj))
+            f.write(json.dumps(outobj) + "\n")
