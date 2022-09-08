@@ -7,12 +7,11 @@ from scipy.stats import pearsonr
 import numpy as np
 import json
 
-
 def wmt_kendall_tau(better_scores, worse_scores):
     """ Computes the official WMT19 shared task Kendall correlation score. """
     assert len(better_scores) == len(worse_scores)
     conc, disc = 0, 0
-    for b, w in tqdm(zip(better_scores, worse_scores), total=len(better_scores)):
+    for b, w in zip(better_scores, worse_scores):
         if b > w:
             conc += 1
         else:
@@ -93,12 +92,8 @@ if __name__ == "__main__":
     print("Shapes", scores_hp.shape, scores_hm.shape)
 
     print("Computing correlations on", len(scores_hp), "sentence scores")
-    corr_kendall = kendalltau(scores_hp, scores_hm)[0]
-    print(f"Kendall:  {corr_kendall:.2f}")
     corr_pearson = pearsonr(scores_hp, scores_hm)[0]
     print(f"Pearson:  {corr_pearson:.2f}")
-    corr_spearman = spearmanr(scores_hp, scores_hm)[0]
-    print(f"Spearman: {corr_spearman:.2f}")
 
     acc = np.average([x < y for x, y in zip(scores_hm, scores_hp)])
     print(f"Accuracy: {acc:.2%}")
@@ -109,7 +104,7 @@ if __name__ == "__main__":
     print(f"Tau: {tau:.2f}")
 
     outobj = {
-        "ta": tau, "pearson (good-bad)": corr_pearson,
+        "tau": tau, "pearson (good-bad)": corr_pearson,
         "model": args.model.split("/")[-1],
         "acc": acc, "avg_diff": avg_diff,
         "data": args.data.split("/")[-1].split(".")[0]
