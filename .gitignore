@@ -1,6 +1,7 @@
 # added by zouharvi
 computed/
 downloads/
+logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
