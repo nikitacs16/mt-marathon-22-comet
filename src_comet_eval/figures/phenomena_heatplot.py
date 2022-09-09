@@ -18,15 +18,38 @@ ALLOWED_MODELS = [
     'aug-comet-05\n14876',
     # 'aug-comet-05\n29752',
     # 'margin-025\n20185',
+    'margin-lse',
+    'margin-01',
     'margin-025\n25230',
     # 'margin-05\n5046',
     'margin-05\n1513',
     # 'margin-1\n5046',
     'margin-1\n10092',
-    'margin-01',
-    'margin-lse',
     'contrastive',
 ]
+
+PRETTY_NAMES = {
+    'Baseline (52775 ckpt)': "Baseline",
+    'aug-comet-05\n14876': "Threshold\n0.5",
+    # 'aug-comet-05\n29752',
+    # 'margin-025\n20185',
+    'margin-025\n25230': "Margin\n0.25",
+    # 'margin-05\n5046',
+    'margin-05\n1513': "Margin\n0.5",
+    # 'margin-1\n5046',
+    'margin-1\n10092': "Margin\n1",
+    'margin-01': "Margin\n0.1",
+    'margin-lse': "Margin+DA\n0.1",
+    'contrastive': "Contrastive\nsingle",
+}
+
+
+def get_pretty_name(name):
+    if name in PRETTY_NAMES:
+        return PRETTY_NAMES[name]
+    else:
+        return name
+
 
 TRAINED_PHENOMENA = [
     "hallucination-date-time",
@@ -62,7 +85,6 @@ if __name__ == "__main__":
         for k in data[0].keys()
     }
 
-
     data = {
         k: [float(x) for x in data[k]]
         for k in data.keys()
@@ -73,7 +95,6 @@ if __name__ == "__main__":
     data = {
         k: data[k] for k in ALLOWED_MODELS
     }
-
 
     yticks = list(data.keys())
 
@@ -101,31 +122,34 @@ if __name__ == "__main__":
 
     for row_i, row in enumerate(data):
         plt.text(
-            data.shape[1]-1.75, row_i,
-            "+" if data[row_i][-1] > 0 else "-",
+            data.shape[1] - 1.75, row_i,
+            "+" if data[row_i][-1] > 0 else "-" if data[row_i][-1] < 0 else "",
             ha="center", va="center",
         )
 
     # trained metrics
     plt.vlines(
-        data.shape[1]-len(TRAINED_PHENOMENA)-0.5-3,
-        -0.5, len(yticks)-0.5,
+        data.shape[1] - len(TRAINED_PHENOMENA) - 0.5 - 3,
+        -0.5, len(yticks) - 0.5,
         color="black"
     )
     # average
     plt.vlines(
-        data.shape[1]-3,
-        -0.5, len(yticks)-0.5,
+        data.shape[1] - 3,
+        -0.5, len(yticks) - 0.5,
         color="black"
     )
     # plt.xlim(0, data.shape[1])
-    plt.ylim(data.shape[0]-0.5, -0.5)
+    plt.ylim(data.shape[0] - 0.5, -0.5)
 
     plt.title(
         "difference in kendall $\\tau$ on specific phenomena against the baseline"
     )
     # plt.xticks(range(len(xticks)), xticks)
-    plt.yticks(range(len(yticks)), yticks)
+    plt.yticks(
+        range(len(yticks)),
+        [get_pretty_name(x) for x in yticks]
+    )
 
     plt.tight_layout(pad=0.5)
     plt.show()

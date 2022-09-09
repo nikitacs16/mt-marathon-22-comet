@@ -6,9 +6,10 @@ for mode in acc corr; do
         # "checkpoint_margin_01_reg/checkpoints/epoch=6-step=35322.ckpt" \
         # "checkpoint_contrastive/checkpoints/epoch=3-step=20184.ckpt"; \
         # "checkpoint_threshold_025/checkpoints/epoch=0-step=14876.ckpt"; \
+        # "checkpoint_threshold_075/checkpoints/epoch=0-step=14876.ckpt"; \
 
     for model in \
-        "checkpoint_threshold_075/checkpoints/epoch=0-step=14876.ckpt"; \
+        "checkpoint_threshold_dyn/checkpoints/epoch=0-step=5046.ckpt"; \
     do
         basedirectory=$(echo "$model" | awk -F "/" '{print $1}');
         nickname=${basedirectory/checkpoint_/};

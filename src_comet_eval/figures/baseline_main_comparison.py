@@ -15,8 +15,8 @@ data["baseline"] = {
     "files": ["baseline"],
 }
 data["threshold"] = {
-    "xticks": ["0.25\nthreshold", "0.5\nthreshold", "0.75\nthreshold"],
-    "files": ["threshold_025", "aug_05", "threshold_075"],
+    "xticks": ["0.25\nthreshold", "0.5\nthreshold", "0.75\nthreshold", "dynamic\nthreshold"],
+    "files": ["threshold_025", "aug_05", "threshold_075", "threshold_dyn"],
 }
 data["margin"] = {
     "xticks": ["0.1\nmargin+da", "0.1\nmargin", "0.25\nmargin", "0.5\nmargin", "1\nmargin"],
