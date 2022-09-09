@@ -13,29 +13,14 @@ data = {}
 data["baseline"] = {
     "xticks": ["baseline"],
     "files": ["baseline"],
-    "ch_acc": [0.611],
-    "ch_tau": [0.223],
-    "mqm_pearson": [0.303],
-    # "mqm_spearman": [0.346],
-    "mqm_kendall": [0.259],
 }
 data["threshold"] = {
-    "xticks": ["0.5\nthreshold"],
-    "files": ["aug_05"],
-    "ch_acc": [0.606],
-    "ch_tau": [0.212],
-    "mqm_pearson": [0.276],
-    # "mqm_spearman": [0.329],
-    "mqm_kendall": [0.246],
+    "xticks": ["0.25\nthreshold", "0.5\nthreshold", "0.75\nthreshold"],
+    "files": ["threshold_025", "aug_05", "threshold_075"],
 }
 data["margin"] = {
     "xticks": ["0.1\nmargin+da", "0.1\nmargin", "0.25\nmargin", "0.5\nmargin", "1\nmargin"],
     "files": ["margin_01_reg", "margin_01", "ch025_e4", "ch05_e2", "ch1_e1"],
-    # "ch_acc": [0.594, 0.557, 0.534],
-    # "ch_tau": [0.194, 0.115, 0.068],
-    # "mqm_pearson": [0.053, 0.034, -0.006],
-    # "mqm_spearman": [0.346, 0.329],
-    # "mqm_kendall": [0.027, 0.035, -0.004],
 }
 data["contrastive"] = {
     "xticks": ["contrastive\nsingle"],
@@ -44,7 +29,7 @@ data["contrastive"] = {
 
 KWARGS = {}
 
-plt.figure(figsize=(10.5, 4))
+plt.figure(figsize=(10.5, 5.5))
 
 
 ax1 = plt.gca()

@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     for row_i, row in enumerate(data):
         plt.text(
-            data.shape[1]-1.5, row_i,
+            data.shape[1]-1.75, row_i,
             "+" if data[row_i][-1] > 0 else "-",
             ha="center", va="center",
         )
