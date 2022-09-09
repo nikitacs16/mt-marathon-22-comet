@@ -136,4 +136,5 @@ plt.legend(
     ncol=2, loc="upper left", bbox_to_anchor=(-0.09, 1.3)
 )
 plt.tight_layout(rect=(0.01, 0, 0.95, 0.99), pad=0.1)
+plt.savefig("figures/threshold_aug.pdf")
 plt.show()
