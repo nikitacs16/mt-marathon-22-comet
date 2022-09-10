@@ -15,21 +15,25 @@ data["baseline"] = {
     "files": ["baseline"],
 }
 data["threshold"] = {
-    "xticks": ["0.25\nthreshold", "0.5\nthreshold", "0.75\nthreshold", "dynamic\nthreshold"],
-    "files": ["threshold_025", "aug_05", "threshold_075", "threshold_dyn"],
+    "xticks": ["0.25\nthreshold", "0.5\nthreshold", "0.75\nthreshold", "dynamic\nthreshold", "static\nthreshold", "unpair dyn\nthreshold"],
+    "files": ["threshold_025", "aug_05", "threshold_075", "threshold_dyn", "threshold_dyn_extra", "threshold_dyn_unpair"],
+}
+data["+reg"] = {
+    "xticks": ["contrastive+da\nmulti", "0.1\nmargin+da", "0.25\nmargin+da"],
+    "files": ["contrastive_multi_reg", "margin_01_reg", "margin_025_reg"],
 }
 data["margin"] = {
-    "xticks": ["0.1\nmargin+da", "0.1\nmargin", "0.25\nmargin", "0.5\nmargin", "1\nmargin"],
-    "files": ["margin_01_reg", "margin_01", "ch025_e4", "ch05_e2", "ch1_e1"],
+    "xticks": ["0.1\nmargin", "0.25\nmargin", "0.5\nmargin", "1\nmargin"],
+    "files": ["margin_01", "ch025_e4", "ch05_e2", "ch1_e1"],
 }
 data["contrastive"] = {
-    "xticks": ["contrastive\nsingle"],
-    "files": ["contrastive"],
+    "xticks": ["contrastive\nsingle", "contrastive\nmulti"],
+    "files": ["contrastive", "contrastive_multi"],
 }
 
 KWARGS = {}
 
-plt.figure(figsize=(10.5, 5.5))
+plt.figure(figsize=(12.5, 7.1))
 
 
 ax1 = plt.gca()
@@ -112,7 +116,7 @@ for data_model_i, data_model in enumerate(data.values()):
 
 plt.xticks(
     range(len(xticks_all)),
-    [("\n" if x_i % 2 else "") + x for x_i, x in enumerate(xticks_all)]
+    [("\n\n" if x_i % 2 else "") + x for x_i, x in enumerate(xticks_all)]
 )
 
 ax2.set_ylabel("Performance (challenge set)")
@@ -125,7 +129,7 @@ h2, l2 = ax2.get_legend_handles_labels()
 
 plt.legend(
     h1 + h2, l1 + l2,
-    ncol=4, loc="upper left", bbox_to_anchor=(-0.04, 1.2)
+    ncol=4, loc="upper left", bbox_to_anchor=(-0.04, 1.1)
 )
 plt.tight_layout(rect=(0.01, 0, 1, 0.99), pad=0.1)
 plt.savefig("figures/baseline_main_comparison.pdf")

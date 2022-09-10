@@ -1,20 +1,25 @@
 #!/usr/bin/bash
 
-for mode in acc corr; do
-        # "checkpoints_eloquent/checkpoints_margin_1/checkpoints/epoch=1-step=10092.ckpt" \
-        # "checkpoint_margin_01/checkpoints/epoch=3-step=20184.ckpt" \
-        # "checkpoint_margin_01_reg/checkpoints/epoch=6-step=35322.ckpt" \
-        # "checkpoint_contrastive/checkpoints/epoch=3-step=20184.ckpt"; \
-        # "checkpoint_threshold_025/checkpoints/epoch=0-step=14876.ckpt"; \
-        # "checkpoint_threshold_075/checkpoints/epoch=0-step=14876.ckpt"; \
+# "checkpoints_eloquent/checkpoints_margin_1/checkpoints/epoch=1-step=10092.ckpt" \
+# "checkpoint_margin_01/checkpoints/epoch=3-step=20184.ckpt" \
+# "checkpoint_margin_01_reg/checkpoints/epoch=6-step=35322.ckpt" \
+# "checkpoint_contrastive/checkpoints/epoch=3-step=20184.ckpt"; \
+# "checkpoint_threshold_025/checkpoints/epoch=0-step=14876.ckpt"; \
+# "checkpoint_threshold_075/checkpoints/epoch=0-step=14876.ckpt"; \
+# "checkpoint_threshold_dyn/checkpoints/epoch=0-step=5046.ckpt"; \
+# "checkpoint_contrastive_multi/checkpoints/epoch=2-step=7740.ckpt" \
+# "checkpoint_margin_025_reg/checkpoints/epoch=8-step=45414.ckpt"; \
+# "checkpoint_contrastive_multi_reg/checkpoints/epoch=4-step=12900.ckpt"; \
+# "checkpoint_threshold_dyn_extra/checkpoints/main.ckpt"; \
 
-    for model in \
-        "checkpoint_threshold_dyn/checkpoints/epoch=0-step=5046.ckpt"; \
-    do
+for model in \
+    "checkpoint_threshold_dyn_unpair/checkpoints/epoch=0-step=14876.ckpt"; \
+do
+    for mode in acc corr; do
         basedirectory=$(echo "$model" | awk -F "/" '{print $1}');
         nickname=${basedirectory/checkpoint_/};
 
-        echo "Running $nickname";
+        echo "Running $nickname for ${mode} mode";
 
         bsub -W 4:00 -n 8 -R "rusage[mem=4000,ngpus_excl_p=1]" \
             python3 ./src_comet_eval/eval_${mode}.py \

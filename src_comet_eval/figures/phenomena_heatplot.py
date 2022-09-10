@@ -15,7 +15,12 @@ import fig_utils
 ALLOWED_MODELS = [
     # 'Baseline (42220 ckpt)',
     'Baseline (52775 ckpt)',
+    'aug-comet-025',
     'aug-comet-05\n14876',
+    'aug-comet-075',
+    'taido-1',
+    'taido-2',
+    'lisa-1',
     # 'aug-comet-05\n29752',
     # 'margin-025\n20185',
     'margin-lse',
@@ -26,11 +31,18 @@ ALLOWED_MODELS = [
     # 'margin-1\n5046',
     'margin-1\n10092',
     'contrastive',
+    "multi_contrastive",
+    "multi_contrastive_reg",
 ]
 
 PRETTY_NAMES = {
     'Baseline (52775 ckpt)': "Baseline",
+    'aug-comet-025': "Threshold\n0.25",
     'aug-comet-05\n14876': "Threshold\n0.5",
+    'aug-comet-075': "Threshold\n0.75",
+    'taido-1': "Threshold\ndyn",
+    'taido-2': "Threshold\ndyn unpair",
+    'lisa-1': "Threshold\nstatic",
     # 'aug-comet-05\n29752',
     # 'margin-025\n20185',
     'margin-025\n25230': "Margin\n0.25",
@@ -41,6 +53,8 @@ PRETTY_NAMES = {
     'margin-01': "Margin\n0.1",
     'margin-lse': "Margin+DA\n0.1",
     'contrastive': "Contrastive\nsingle",
+    "multi_contrastive": "Contrastive\nmulti",
+    "multi_contrastive_reg": "Contrastive+DA\nmulti",
 }
 
 
@@ -117,7 +131,7 @@ if __name__ == "__main__":
     #     "untranslated"
     # ]
 
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(12.5, 7.1))
     plt.imshow(data, cmap="RdYlGn", aspect="auto")
 
     for row_i, row in enumerate(data):
@@ -150,6 +164,9 @@ if __name__ == "__main__":
         range(len(yticks)),
         [get_pretty_name(x) for x in yticks]
     )
+
+    plt.ylabel("Models/methods")
+    plt.xlabel("Perturbation phenomena")
 
     plt.tight_layout(pad=0.5)
     plt.show()
